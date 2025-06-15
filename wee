@@ -1,0 +1,17 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/jensonhirst/Orion/main/source')))()
+
+local Window = OrionLib:MakeWindow({Name = "Simulator Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "Credit By: Fleu"})
+
+local Tab = Window:MakeTab({
+	Name = "Main Tab",
+	Icon = "",
+	PremiumOnly = false
+})
+
+Tab:AddButton({
+	Name = "Heist Tycoon💰",
+	Callback = function()
+      		print("button pressed")
+            loadstring(game:HttpGet('https://raw.githubusercontent.com/TheLastqer/TESTER-/refs/heads/main/v12'))()
+  	end    
+})
