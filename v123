@@ -1,0 +1,99 @@
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "IncomeSpeedGui"
+gui.ResetOnSpawn = false
+
+-- Frame
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 300, 0, 150)
+frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+
+-- Title
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "Income Multiplier"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 20
+
+-- TextBox for input
+local inputBox = Instance.new("TextBox", frame)
+inputBox.PlaceholderText = "Enter multiplier (1 - 100000)"
+inputBox.Size = UDim2.new(0, 280, 0, 30)
+inputBox.Position = UDim2.new(0, 10, 0, 40)
+inputBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+inputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+inputBox.TextSize = 18
+inputBox.Font = Enum.Font.SourceSans
+
+-- Start/Stop Button
+local toggleBtn = Instance.new("TextButton", frame)
+toggleBtn.Size = UDim2.new(0, 280, 0, 30)
+toggleBtn.Position = UDim2.new(0, 10, 0, 80)
+toggleBtn.Text = "Start Income"
+toggleBtn.TextSize = 18
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+-- Warning Label
+local warningLabel = Instance.new("TextLabel", frame)
+warningLabel.Size = UDim2.new(1, -20, 0, 30)
+warningLabel.Position = UDim2.new(0, 10, 0, 115)
+warningLabel.Text = ""
+warningLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+warningLabel.BackgroundTransparency = 1
+warningLabel.Font = Enum.Font.SourceSans
+warningLabel.TextSize = 14
+warningLabel.TextWrapped = true
+
+-- Functionality
+local running = false
+local heartbeatConn = nil
+
+toggleBtn.MouseButton1Click:Connect(function()
+	local multiplier = tonumber(inputBox.Text)
+
+	if not multiplier or multiplier < 1 then
+		warningLabel.Text = "❌ Enter a valid number between 1 and 100000."
+		return
+	end
+
+	if multiplier > 1000 then
+		warningLabel.Text = "⚠️ Warning: Over 1000x may crash or not work!"
+	else
+		warningLabel.Text = ""
+	end
+
+	if running then
+		running = false
+		if heartbeatConn then heartbeatConn:Disconnect() end
+		toggleBtn.Text = "Start Income"
+		toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+	else
+		running = true
+		toggleBtn.Text = "Stop Income"
+		toggleBtn.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+
+		local args = { [1] = player }
+
+		heartbeatConn = RunService.Heartbeat:Connect(function()
+			for i = 1, multiplier do
+				ReplicatedStorage.Knit.Services.TycoonService.RF.PayIncome:InvokeServer(unpack(args))
+			end
+		end)
+	end
+end)
